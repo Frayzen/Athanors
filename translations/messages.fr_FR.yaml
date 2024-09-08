@@ -1,0 +1,4 @@
+mail:
+  already_used: "Cette adresse mail est déjà lié à un compte"
+  unavailable: "L'adresse mail est invalide"
+field_empty: "Tout les champs ne sont pas complets"

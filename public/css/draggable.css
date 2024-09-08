@@ -1,0 +1,39 @@
+#content > div{
+    padding: 20px;
+    background: #eee;
+    margin-bottom: 20px;
+    z-index: 0;
+}
+
+.active {
+    outline: 1px solid var(--danger);
+}
+
+.hover {
+    outline: 1px solid var(--primary);
+}
+
+.drop-item {
+    cursor: pointer;
+    margin-bottom: 10px;
+    background-color: rgb(255, 255, 255);
+    padding: 5px 10px;
+    border-radisu: 3px;
+    border: 1px solid rgb(204, 204, 204);
+    position: relative;
+}
+.mobileBtns .btn{
+    display: none;
+}
+
+@media(max-width: 1000px){
+    #supervisorsIn .mobileBtns .btn-danger{
+        display: block;
+        margin: auto;
+    }
+
+    #supervisorsList .mobileBtns .btn-success{
+        display: block;
+        margin: auto;
+    }
+}

@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+
+{% block top %}
+    <section class="hero-wrap js-fullheight" style="background-image: url({{ asset('images/bg_3.jpg') }});">
+        <div class="overlay"></div>
+        <div class="container-fluid px-0">
+            <div class="row no-gutters text align-items-end js-fullheight justify-content-center" data-scrollax-parent="true">
+                <div class="col-md-12 ftco-animate text-center">
+                    <p class="breadcrumbs"><span class="mr-2"><a href="{{ path('atelier_consult', {'id':atelier.id}) }}">{{ atelier.name }}</a></span></p>
+                    <h1 class="bread">Inscription à l'atelier</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block body %}
+
+
+    <form class="card" method="post" action="{{ path('atelier_register_valid') }}">
+        <div class="card-body">
+            <div class="alert alert-dark" role="alert">
+                <p class="m-0 p-0">Vous êtes sur le point de vous inscrire à l'atelier {{ atelier.name }}
+                    <br>Vérifiez les informations suivantes, avant de valider l'opération</p>
+            </div>
+            <fieldset disabled>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <label for="disabledTextInput">Nom de la ou les personne(s) encadrante(s)</label>
+                        {% for supervisor in atelier.supervisors %}
+
+                        {% endfor %}
+                    </li>
+                    <li class="list-group-item">
+                        <label for="disabledTextInput">Début de l'atelier</label>
+                        <input type="text" id="disabledTextInput" class="form-control" placeholder="Le {{ atelier.start | date('d/m/Y à H:i') }}">
+                    </li>
+                    <li class="list-group-item">
+                        <label for="disabledTextInput">Fin de l'atelier</label>
+                        <input type="text" id="disabledTextInput" class="form-control" placeholder="Le {{ atelier.end | date('d/m/Y à H:i') }}">
+                    </li>
+                    <li class="list-group-item">
+                        <label for="disabledTextInput">Cout de chaque séance</label>
+                        <input type="text" id="disabledTextInput" class="form-control" placeholder="{{ atelier.pricepersession }}€">
+                    </li>
+                    <li class="list-group-item">
+                        <label for="disabledTextInput">Inscription au nom de</label>
+                        <input type="text" id="disabledTextInput" class="form-control" placeholder="{{ app.user.fullName }}">
+                    </li>
+                    <li class="list-group-item">
+                        <label for="disabledTextInput">Votre numéro de téléphone</label><br>
+                        <input type="text" id="disabledTextInput" class="form-control" placeholder="{{ app.user.tel }}">
+                        <small id="emailHelp" class="form-text text-warning">Ce numéro doit être exact sans quoi l'inscription se verra refusée</small>
+                    </li>
+                    <li class="list-group-item">
+                        <label for="disabledTextInput">Votre mail personnel</label><br>
+                        <input type="text" id="disabledTextInput" class="form-control" placeholder="{{ app.user.email }}">
+                        <small id="emailHelp" class="form-text text-warning">Ce mail doit être exact sans quoi l'inscription se verra refusée</small>
+                    </li>
+                </ul>
+            </fieldset>
+        </div>
+        <div>
+        <div class="alert alert-warning" role="alert">
+            Attention, l'inscription au sein d'un atelier se doit d'être sérieuse, la bonne entente et la tolérance sont nécessaires pour que chacun s'y épanouisse. Toute demande d'inscription non sérieuse se verra supprimée.
+        </div>
+        </div>
+        <div class="card-footer">
+            <input type="submit" class="btn btn-success" value="Valider l'inscription">
+        </div>
+        <input type="hidden" name="idAtelier" value="{{ atelier.id }}">
+    </form>
+
+{% endblock %}
+
+{% block title %}
+    Inscription à {{ atelier.name }}
+{% endblock %}
+

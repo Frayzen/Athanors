@@ -1,0 +1,250 @@
+{% extends 'base.html.twig' %}
+
+
+{% block top %}
+    <section class="hero-wrap js-fullheight" style="background-image: url({{ asset('images/bg_3.jpg') }});">
+        <div class="overlay"></div>
+        <div class="container-fluid px-0">
+            <div class="row no-gutters text align-items-end js-fullheight justify-content-center"
+                 data-scrollax-parent="true">
+                <div class="col-md-12 ftco-animate text-center">
+                    <p class="breadcrumbs"><span class="mr-2"><a
+                                    href="{{ path('user_ateliers') }}">Mes Ateliers</a></span></p>
+                    <h1 class="bread">Mes Ateliers</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.css"
+          integrity="sha256-uq9PNlMzB+1h01Ij9cx7zeE2OR2pLAfRw3uUUOOPKdA=" crossorigin="anonymous">
+    {# <link href='https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.css' rel='stylesheet'/> #}
+    <link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
+{% endblock %}
+
+{% block body %}
+    {% if ateliers | length == 0 %}
+        <div class="w-100 text-center py-5">
+            <h1 class="text-danger">Aucun atelier pour l'instant...</h1>
+        </div>
+    {% else %}
+        <div class="w-75 mx-auto my-4">
+            <div class="d-flex align-items-start">
+                <div class="nav flex-column nav-pills mx-5" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    {% for i in 0..(ateliers|length - 1) %}
+                        <button class="nav-link btn btn-outline-secondary m-1 {% if i == 0 %}active{% endif %}"
+                                id="atelier{{ ateliers[i].id }}" idAtelier="{{ ateliers[i].id }}" data-bs-toggle="pill"
+                                data-bs-target="#atelier{{ ateliers[i].id }}content" type="button" role="tab"
+                                aria-controls="#atelier{{ ateliers[i].id }}content"
+                                {% if i == 0 %}aria-selected="true"{% endif %}>
+                            {{ ateliers[i].name }}
+                        </button>
+                    {% endfor %}
+                </div>
+                <div class="tab-content w-100" id="v-pills-tabContent">
+                    {% for i in 0..(ateliers|length - 1) %}
+                        <div class="tab-pane fade show {% if i == 0 %}active{% endif %}"
+                             id="atelier{{ ateliers[i].id }}content" role="tabpanel"
+                             aria-labelledby="atelier{{ ateliers[i].id }}content">
+                            <h1>{{ ateliers[i].name }}</h1>
+                            {{ ateliers[i].description }}
+                        </div>
+                    {% endfor %}
+                    <div id="calendar" class="w-auto px-md-2 px-1 py-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="modalPresence" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="titleModal"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                                onclick="$('#modalPresence').modal('hide');">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="disabledTextInput" class="form-label">Les thèmes abordés dans la session
+                                :</label>
+                            <input type="text" id="themes" class="form-control" disabled>
+                        </div>
+                        <div id="presenceAnswer">
+                            <p class="mb-2">Informez nous de votre présence à cette session</p>
+                            <div class="mb-2">
+                                <button type="button" id="btnPresent" class="btn">Je serai là</button>
+                                <button type="button" id="btnAbsent" class="btn">Je ne suis pas disponible</button>
+                            </div>
+                        </div>
+                        <div id="presenceMandatory">
+                            <span class="badge badge-warning">Votre présence est obligatoire</span>
+                        </div>
+                        <span id="inform" class="mb-2 badge"></span>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="$('#modalPresence').modal('hide');" type="button" class="btn btn-secondary"
+                                data-bs-dismiss="modal">Retour
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block title %}
+    Mes ateliers
+{% endblock %}
+
+
+
+{% block javascripts %}
+    {% if ateliers | length > 0 %}
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.js"
+                integrity="sha256-HfAgbeBwKASvvj3HByvZYAygWD89DaYes+tVx0JKt3g=" crossorigin="anonymous"></script>
+        <script>
+            ateliers = {
+                {% for atelier in ateliers %}
+                '{{ atelier.id }}': {
+                    'start': '{{ atelier.start|date("Y-m-d H:i") }}',
+                    'end': '{{ atelier.end|date("Y-m-d H:i") }}',
+                    'events': {{ atelier.dataCalendar(app.user) | raw }},
+                    'sessionsMandatory': {% if atelier.sessionsMandatory %}true{% else %}false{% endif %},
+                    'firstDay': '{{ atelier.start | date('w') }}'
+                },
+                {% endfor %}
+            }
+            var eventClicked;
+            var atelierId = {{ ( ateliers |first).id }};
+            var calendar = null;
+            var updatedAnswers = []
+
+            function renderCalendar(atelier) {
+                if (calendar != null)
+                    calendar.destroy();
+                let calendarElt = document.querySelector("#calendar")
+                calendar = new FullCalendar.Calendar(calendarElt, {
+                    eventBackgroundColor: '#343a40',
+                    initialView: 'timeGridWeek',
+                    timeZone: 'Europe/Paris',
+                    firstDay: atelier['firstDay'],
+                    locale: 'fr',
+                    validRange: {
+                        start: atelier['start'],
+                        end: atelier['end']
+                    },
+                    nowIndicator: true,
+                    allDaySlot: false,
+                    editable: false,
+                    buttonText: {
+                        today: "Aujourd'hui"
+                    },
+                    headerToolbar: {
+                        start: 'prev,next',
+                        center: 'title',
+                        end: 'today'
+                    },
+                    eventClick: function (info) {
+                        eventClicked = info.event;
+                        let themes = info.event._def.extendedProps.themes;
+                        let answer = info.event._def.extendedProps.answer;
+                        let sessionsMandatory = ateliers[atelierId].sessionsMandatory;
+                        if (atelierId in updatedAnswers)
+                            if (info.event.id in updatedAnswers[atelierId])
+                                answer = updatedAnswers[atelierId][info.event.id];
+                        if (themes != '' && themes != null)
+                            $("#themes").val(themes)
+                        else
+                            $("#thems").val('Aucun thème renseigné par l\'organisateur.ice')
+                        if (info.event.title != null && info.event.title != "")
+                            $("#titleModal").html('Session "' + info.event.title + '"');
+                        else
+                            $("#titleModal").html('Session sans nom');
+
+                        if (sessionsMandatory) {
+                            $('#presenceMandatory').show();
+                            $('#presenceAnswer').hide();
+                        } else {
+                            $('#presenceMandatory').hide();
+                            $('#presenceAnswer').show();
+
+                            $("#btnAbsent").removeClass("btn-outline-danger");
+                            $("#btnAbsent").removeClass("btn-danger");
+                            $("#btnPresent").removeClass("btn-outline-success");
+                            $("#btnPresent").removeClass("btn-success");
+                            $("#inform").html("");
+                            $("#inform").removeClass("badge-danger");
+                            $("#inform").removeClass("badge-success");
+                            if (answer == false) {
+                                $("#inform").html("Vous êtes noté absent");
+                                $("#inform").addClass("badge-danger");
+                                $("#btnPresent").addClass('btn-outline-success')
+                                $("#btnAbsent").addClass('btn-danger')
+                            } else if (answer == true) {
+                                $("#inform").html("Vous êtes noté présent");
+                                $("#inform").addClass("badge-success");
+                                $("#btnAbsent").addClass('btn-outline-danger')
+                                $("#btnPresent").addClass('btn-success')
+                            } else {
+                                $("#btnPresent").addClass('btn-success')
+                                $("#btnAbsent").addClass('btn-danger')
+                            }
+                        }
+                        $("#modalPresence").modal('show');
+                        return;
+                    },
+                    events: atelier['events']
+                });
+                calendar.render();
+            }
+
+            renderCalendar(ateliers[{{ ( ateliers |first).id }}]);
+
+            window.onload = () => {
+                var arrayEl = document.querySelectorAll('button[data-bs-toggle="pill"]')
+                arrayEl.forEach(el =>
+                    el.addEventListener('shown.bs.tab', function (event) {
+                        calendar
+                        atelierId = el.getAttribute('idAtelier');
+                        renderCalendar(ateliers[el.getAttribute('idAtelier')])
+                    })
+                );
+
+                function sendAPIPresence(value) {
+                    $('#modalPresence').modal('hide');
+                    if (atelierId in updatedAnswers)
+                        updatedAnswers[atelierId][eventClicked.id] = value;
+                    else {
+                        updatedAnswers[atelierId] = {};
+                        updatedAnswers[atelierId][eventClicked.id] = value;
+                    }
+                    if (value)
+                        eventClicked.setProp('textColor', '#28a745');
+                    else
+                        eventClicked.setProp('textColor', '#dc3545');
+
+                    let donnees = {
+                        "idAtelier": atelierId,
+                        "idSession": eventClicked.id,
+                        "answerValue": value
+                    }
+                    xhr = new XMLHttpRequest();
+                    xhr.open('PUT', '{{ path('api_user_ateliers_presence') }}')
+                    xhr.send(JSON.stringify(donnees))
+                }
+
+                $("#btnPresent").click(function () {
+                    sendAPIPresence(true);
+                });
+                $("#btnAbsent").click(function () {
+                    sendAPIPresence(false)
+                });
+            };
+        </script>
+    {% endif %}
+{% endblock %}

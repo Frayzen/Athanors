@@ -1,0 +1,26 @@
+fm_elfinder:
+    assets_path: /assets
+    instances:
+        default:
+            locale: fr
+            editor: ckeditor
+            fullscreen: true
+            connector:
+                roots:
+                    uploads:
+                        driver: LocalFileSystem
+                        path: uploads/images
+                        upload_max_size: 300M
+        form:
+            locale: fr # defaults to current request locale
+            editor: form # other choices are tinymce or simple, and form
+            fullscreen: true # defaults true, applies to simple and ckeditor editors
+            connector:
+                debug: false # defaults to false
+                roots: # at least one root must be defined
+                    uploads:
+                        driver: LocalFileSystem
+                        path: uploads/images
+                        upload_allow: [ 'image/png', 'image/jpg', 'image/jpeg' ]
+                        upload_deny: [ 'all' ]
+                        upload_max_size: 300M

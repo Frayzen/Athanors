@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block top %}
+    <section class="hero-wrap js-fullheight" style="background-image: url({{ asset('images/bg_3.jpg') }});">
+        <div class="overlay"></div>
+        <div class="container-fluid px-0">
+            <div class="row no-gutters text align-items-end js-fullheight justify-content-center" data-scrollax-parent="true">
+                <div class="col-md-12 ftco-animate text-center">
+                    <p class="breadcrumbs"><span class="mr-2"><a href="{{ path('panel_extra_pages') }}">Edition pages</a></span></p>
+                    <h1 class="bread">Panel Administrateur</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block title %}Liste des pages{% endblock %}
+
+{% block site %}
+    <div class="container-fluid mx-0 my-2">
+        <div class="row">
+            {% for page in pages %}
+                <div class="col-sm-11 col-lg-6">
+                    <div class="card my-2">
+                        <div class="card-body">
+                            <h3 class="card-title font-weight-bold d-inline-block"><a href="#">{{ page.name }}</a></h3>
+
+                        </div>
+
+                        <div class="card-footer text-muted">
+                            <div class="m-auto d-flex flex-md-row flex-column col-md-11 col-8">
+                                <a href="{{ path('panel_extra_pages_edit', {id:page.id}) }}" class="my-2 mx-auto btn btn-primary">Editer</a>
+                                <a href="#" class="my-2 mx-auto btn btn-danger" onclick="
+                                        $('#modal-body').html('Confirmer la suppresion de la page  <span class=\'badge badge-secondary\'>{{ page.name | e('js') }}</span>? Cette action n\'est pas réversible');
+                                        $('#link_suppr').attr('href', '{{ path('panel_extra_pages_suppr', {'id':page.id}) }}')
+                                        " data-toggle="modal" data-target="#confirmModal">Supprimer</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="w-auto m-5 text-center">
+            <a href="{{ path('panel_extra_pages_create') }}">
+                <span class="p-2 btn btn-success">Ajouter une page</span>
+            </a>
+            <a href="{{ path('panel_atelier') }}">
+                <span class="p-2 btn btn-danger">Retour</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="modalTitle">Suppresion de page</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                    <p class="text-danger"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <a id="link_suppr" href="" class="btn btn-danger">Suppresion définitive</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block stylesheets %}
+
+    <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
+
+{% endblock %}
+
+{% block top %}
+    <section id="form" class="d-flex w-100 bg-black js-fullheight m-auto">
+        <div class="col-md-7 col-lg-5 col-sm-11 m-auto h-auto">
+            <div class="header">
+                <h1 class="abril text-weight-bold">Connexion</h1>
+            </div>
+            {% if error %}
+                <div class="form-group mb-3">
+                    <span class="badge-danger">{{ error | raw }}</span>
+                </div>
+            {% endif %}
+            <div class="content poppins">
+                <form name="register" method="post">
+                    <div class="form-group">
+                        <label for="login_mail" class="required">Adresse mail</label>
+                        <input type="text" id="register_email" name="email" required="required" class="form-control"
+                               autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label for="register_password_first" class="required">Mot de passe</label>
+                        <input type="password" id="register_password_first" name="password" required="required"
+                               class="password-field form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="_remember_me"> Se souvenir de moi
+                        </label>
+                    </div>
+                    <input type="hidden" name="_csrf_token"
+                           value="{{ csrf_token('authenticate') }}"
+                    >
+                    <div class="form-group d-flex text-center flex-column flex-xl-row justify-content-between">
+                        <button type="submit" class="w-auto mr-2 btn-primary btn">Valider</button>
+                        <a href="{{ path('app_register') }}" class="my-2 my-xl-0"> Pas encore de compte ? S'inscrire</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    {% if error %}
+        <div class="my-3 alert alert-danger">Les informations fournies sont incorrectes</div>
+    {% endif %}
+
+    {% if app.user %}
+        <div class="mb-3">
+            Vous êtes connecté en tant que {{ app.user.username }}, <a href="{{ path('app_logout') }}">Déconnexion</a>
+        </div>
+    {% endif %}
+{% endblock %}

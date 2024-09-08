@@ -1,0 +1,134 @@
+{% extends 'base.html.twig' %}
+
+{% block top %}
+    <section class="hero-wrap js-fullheight" style="background-image: url({{ asset('images/bg_3.jpg') }});">
+        <div class="overlay"></div>
+        <div class="container-fluid px-0">
+            <div class="row no-gutters text align-items-end js-fullheight justify-content-center" data-scrollax-parent="true">
+                <div class="col-md-12 ftco-animate text-center">
+                    <p class="breadcrumbs"><span class="mr-2"><a href="{{ path('panel_atelier') }}">Panel ateliers</a></span></p>
+                    <h1 class="bread">Panel Administrateur</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block title %}Liste des ateliers{% endblock %}
+{% block site %}
+    <div class="container-fluid mx-0 my-2">
+        <div class="row">
+            {% for atelier in list_atelier %}
+                <div class="col-sm-11 col-lg-6">
+                    <div class="card my-2">
+                        <div class="card-body">
+                            <a href="{{ path('atelier_consult', {'id':atelier.id}) }}"><h3 class="card-title font-weight-bold d-inline-block">{{ atelier.name }}</h3>{% if atelier.accesible %}<span class="ml-3 badge badge-success poppins">Accesible</span>{% else %}<span class="ml-3 badge badge-danger poppins">Inaccesible</span>{% endif %}</a>
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="mx-lg-1 mx-0 nav-item" role="presentation">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#desc{{ atelier.id }}" type="button" role="tab" aria-controls="desc{{ atelier.id }}" aria-selected="true">Description</button>
+                                </li>
+                                <li class="mx-lg-1 mx-0 nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#members{{ atelier.id }}" type="button" role="tab" aria-controls="members{{ atelier.id }}">Membres Inscrits <span class="badge badge-secondary">{{ atelier.members | length }} / {{ atelier.maxuser }}</span></button>
+                                </li>
+                                <li class="mx-lg-1 mx-0 nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#supervisors{{ atelier.id }}" type="button" role="tab" aria-controls="supervisors{{ atelier.id }}">Intervenant <span class="badge badge-secondary">{{ atelier.supervisors | length }}</span></button>
+                                </li>
+                            </ul>
+                            <div class="tab-content p-3 mb-3" style="max-height: 50vh; overflow-y: auto">
+                                <div class="tab-pane fade show active" id="desc{{ atelier.id }}" role="tabpanel" aria-labelledby="desc{{ atelier.id }}">
+                                    <p class="card-text">{{ atelier.description }}</p>
+                                </div>
+                                <div class="tab-pane fade" id="members{{ atelier.id }}" role="tabpanel" aria-labelledby="members{{ atelier.id }}">
+                                    <div class="list-group">
+                                        {% if atelier.members | length != 0 %}
+                                            <h3>Liste des membres:</h3>
+                                            {% for member in atelier.members %}
+                                                    <a class="list-group-item my-1 list-group-item-action" aria-current="true">
+                                                        <div class="d-flex w-100 justify-content-between">
+                                                            <h5 class="mb-1">{{ member.fullName }}</h5>
+                                                        </div>
+                                                        <p class="mb-1"><b>Mail: </b>{{ member.email }}</p>
+                                                        <p class="mb-1"><b>Tel: </b>{{ member.tel }}</p>
+                                                        <small></small>
+                                                     </a>
+                                            {% endfor %}
+                                        {% else %}
+                                            <p>Aucun membre n'est encore inscrit</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="supervisors{{ atelier.id }}" role="tabpanel" aria-labelledby="supervisors{{ atelier.id }}">
+                                    <div class="list-group text-center">
+                                        {% if atelier.supervisors | length != 0 %}
+                                            <h3>Liste des intervenants:</h3>
+                                            <div class="card-deck mb-5">
+                                                {% for supervisor in atelier.supervisors %}
+                                                    <div class="card">
+                                                        <img class="card-img-top" src="{{ asset(supervisor.pictureFile) }}" alt="Card image cap">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title">{{ supervisor.name }}</h5>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            <p>Aucun intervenant n'est encore enregistré</p>
+                                        {% endif %}
+                                        <a href="{{ path('panel_atelier_supervisors_edit', {'id':atelier.id}) }}" class="btn btn-primary w-auto m-auto">Gérer les intervenants</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer text-muted">
+                            <div class="m-auto d-flex flex-md-row flex-column col-md-11 col-8">
+                                <a href="{{ path('panel_atelier_agenda_edit', {id:atelier.id}) }}" class="my-2 mx-auto btn btn-primary">Agenda de l'atelier</a>
+                                <a href="{{ path('panel_atelier_edit', {id:atelier.id}) }}" class="my-2 mx-auto btn btn-primary">Editer</a>
+                                <a href="#" class="my-2 mx-auto btn btn-danger" onclick="
+                                        $('#modal-body').html('Confirmer la suppresion de l\'atelier  <span class=\'badge badge-secondary\'>{{ atelier.name | e('js') }}</span>? Cette action n\'est pas réversible');
+                                        $('#link_suppr').attr('href', '{{ path('panel_atelier_suppr', {'id':atelier.id}) }}')
+                                        " data-toggle="modal" data-target="#confirmModal">Supprimer</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="w-auto m-5 text-center">
+            <a href="{{ path('panel_atelier_create') }}">
+                <span class="p-2 btn btn-success">Ajouter un atelier</span>
+            </a>
+            <a href="{{ path('panel_supervisor_list') }}">
+            <span class="p-2 btn btn-primary">Liste des intervenants</span>
+            </a>
+            <a href="{{ path('panel_my_page') }}">
+            <span class="p-2 btn btn-primary">Ma page d'analyste</span>
+            </a>
+            <a href="{{ path('panel_extra_pages') }}">
+            <span class="p-2 btn btn-primary">Les pages du sites</span>
+            </a>
+        </div>
+    </div>
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="modalTitle">Suppresion d'atelier</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                    <p class="text-danger"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <a id="link_suppr" href="" class="btn btn-danger">Suppresion définitive</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

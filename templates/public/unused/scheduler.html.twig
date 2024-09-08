@@ -1,0 +1,168 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    Agenda
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/calendars/calendar.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.css" integrity="sha256-uq9PNlMzB+1h01Ij9cx7zeE2OR2pLAfRw3uUUOOPKdA=" crossorigin="anonymous">
+    <link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{{ asset('css/calendarAdapt.css') }}">
+{% endblock %}
+
+{% block top %}
+    <section class="hero-wrap js-fullheight" style="background-image: url({{ asset('images/bg_3.jpg') }});">
+        <div class="overlay"></div>
+        <div class="container-fluid px-0">
+            <div class="row no-gutters text align-items-end js-fullheight justify-content-center"
+                 data-scrollax-parent="true">
+                <div class="col-md-12 ftco-animate text-center">
+                    <p class="breadcrumbs"><span class="mr-2"><a href="{{ path('app_schedulers') }}">Agenda</a></span>
+                        <span>{{ actualAdminUser.fullName }}</span></p>
+                    <h1 class="bread">Agenda</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block body %}
+    <section class="ftco-section ftco-no-pb ftco-no-pt py-3">
+        <div class="container-fluid px-0">
+            <div class="row no-gutters">
+                <div class="col-md-12 blog-wrap">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col-md-5 m-auto img js-fullheight"
+                             style="background-image: url({{ asset(admin.imageFile) }});">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text p-md-5 p-4 ftco-animate">
+                                <div class="icon d-flex align-items-center mb-5">
+                                    <div class="position pl-3">
+                                        <h2 class="mb-0">{{ actualAdminUser.fullName }}</h2>
+                                        <span>{{ admin.job | upper }}</span>
+                                    </div>
+                                </div>
+                                {% if admin.citation != "" %}
+                                    <h4 class="mb-4">" {{ admin.citation }} "</h4>
+                                {% endif %}
+                                <p>{{ admin.description }}</p>
+                                <p class="mb-0 mt-4">
+                                    <a href="{{ path('app_consult_pro_page', {'id':admin.id}) }}" class="btn btn-primary">En savoir plus <span
+                                                class="ion-ios-arrow-forward"></span>
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="hero-wrap h-auto w-auto p-0" style="background-color: black">
+        <div class="container-fluid px-0">
+            <div class="row no-gutters text align-items-end justify-content-center" data-scrollax-parent="true"
+                 style="height: auto !important;">
+                <div class="col-md-12 bg-black text-center py-3">
+                    <h4 class="bread" style="font-size: 5em">Prendre un rendez-vous</h4>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="calendarSect" class="ftco-section ftco-no-pb ftco-no-pt">
+        <div class="container-fluid px-0">
+            <div class="row no-gutters">
+                <div class="col-md-12 blog-wrap">
+                    <div id="calendrier" class="px-md-4 px-1 py-4"></div>
+                    <!-- Modal -->
+                    <div class="modal fade" id="modalRdv" tabindex="-1" role="dialog"
+                         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLongTitle">Prendre un rendez vous</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Vous souhaitez prendre un rdv le <span class="badge badge-secondary"
+                                                                              id="dateDayMont">18 octobre</span> à <span
+                                                class="badge badge-secondary" id="dateHourMins">8h00</span> ?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                                    <form method="post" action="{{ path('reservation_date') }}">
+                                        <input type="hidden" name="idAdminUser" value="{{ actualAdminUser.id }}">
+                                        <input type="hidden" name="start" value="" id="start">
+                                        <input type="hidden" name="end" value="" id="end">
+                                        <input type="submit" class="btn btn-primary" value="Prendre rendez-vous">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.js"
+            integrity="sha256-HfAgbeBwKASvvj3HByvZYAygWD89DaYes+tVx0JKt3g=" crossorigin="anonymous"></script>
+    <script>
+        window.onload = () => {
+
+            let calendarElt = document.querySelector("#calendrier")
+
+            function convertMin2Digits(i) {
+                if (i < 10)
+                    return "0" + i;
+                else
+                    return "" + i;
+            }
+
+            let calendar = new FullCalendar.Calendar(calendarElt, {
+                eventBackgroundColor: '#343a40',
+                initialView: 'timeGridWeek',
+                //themeSystem: 'bootstrap',
+                timeZone: 'Europe/Paris',
+                firstDay: '{{ "now"|date("w") }}',
+                locale: 'fr',
+                validRange: { {% set range = "+"~(rangeDays-1)~" day" %}
+                    start: '{{ "now"|date("Y-m-d H:i") }}',
+                    end: '{{ "now"|date_modify(range)|date("Y-m-d H:i") }}'
+                },
+                nowIndicator: true,
+                allDaySlot: false,
+                editable: false,
+                buttonText: {
+                    today: "Aujourd'hui"
+                },
+                headerToolbar: {
+                    start: 'prev,next',
+                    center: 'title',
+                    end: 'today'
+                },
+                eventClick: function (info) {
+                    if (info.event._def.ui.backgroundColor == "red" || info.event._def.ui.display == "background")
+                        return;
+                    let start = new Date(info.event._instance.range.start);
+                    start = new Date(start.getUTCFullYear() + "/" + (start.getUTCMonth() + 1) + "/" + start.getUTCDate() + " " + start.getUTCHours() + ":" + start.getUTCMinutes());
+                    let end = new Date(info.event._instance.range.end);
+                    end = new Date(end.getUTCFullYear() + "/" + (end.getUTCMonth() + 1) + "/" + end.getUTCDate() + " " + end.getUTCHours() + ":" + end.getUTCMinutes());
+                    $("#dateDayMont").text(convertMin2Digits(start.getDate()) + " / " + convertMin2Digits(start.getMonth() + 1) + " / " + start.getFullYear());
+                    $("#dateHourMins").text(convertMin2Digits(start.getHours()) + ":" + convertMin2Digits(start.getMinutes()));
+                    $("#start").val(start.toString());
+                    $("#end").val(end.toString());
+                    $("#modalRdv").modal("show");
+                },
+                events: {{ data|raw }}
+
+            });
+            calendar.render();
+        };
+    </script>
+{% endblock %}

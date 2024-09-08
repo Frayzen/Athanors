@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Les ateliers{% endblock %}
+
+
+{% block top %}
+    <section class="hero-wrap js-fullheight" style="background-image: url({{ asset('images/bg_3.jpg') }});">
+        <div class="overlay"></div>
+        <div class="container-fluid px-0">
+            <div class="row no-gutters text align-items-end js-fullheight justify-content-center" data-scrollax-parent="true">
+                <div class="col-md-12 ftco-animate text-center">
+                    <p class="breadcrumbs"><span class="mr-2">Intervenants</span></p>
+                    <h1 class="bread">Liste Des Intervenants</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block body %}
+    <div class="container">
+        <div class="p-3 row row text-center">
+
+            {% for inter in list_intervenants %}
+                <!-- Team item -->
+                <div class="col-xl-3 col-sm-6 mb-5">
+                    <div class="bg-white rounded shadow-sm py-3 px-2">
+                        <div class="m-auto rounded-circle shadow-sm" style="height: 150px; width: 150px; background-position: center; background-size: cover; background-image: url('{{ inter.pictureFile }}')">
+                        </div>
+                        <h5 class="my-2">{{ inter.name }}</h5>
+                        <p class="small text-uppercase text-dark">{{ inter.profession }}</p>
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#intervenant{{ inter.id}}" class="btn-link text-dark small text-muted">En savoir plus sur cet intervenant</a>
+                    </div>
+                </div><!-- End -->
+
+
+
+                <div class="modal fade" tabindex="-1" id="intervenant{{ inter.id}}" aria-hidden="true" data-bs-backdrop="static">
+                    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">{{ inter.name }}</h5>
+                            </div>
+                            <div class="modal-body">
+                                <div class="profile-content">
+                                    <div class="container-fluid">
+                                        <div class="row bg-light px-5 py-3 rounded">
+                                            <div class="col-md-6 ml-auto mr-auto">
+                                                <div class="profile">
+                                                    <div class="avatar">
+                                                        <img src="{{ inter.pictureFile }}" alt="{{ inter.name }}" class="img-raised img-fluid">
+                                                    </div>
+                                                    <div class="name">
+                                                        <h1 class="title">{{ inter.name }}</h1>
+                                                        <span class="text-muted text-uppercase">{{ inter.profession }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="description my-3">
+                                            {{ inter.content | raw}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-sm      btn-danger" data-bs-dismiss="modal">Fermer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

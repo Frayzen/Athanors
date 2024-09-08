@@ -1,0 +1,37 @@
+#calendarSect, #calendrier{
+    height: 100vh;
+}
+#calendrier *:not(.fc-icon){
+    font-family: "Poppins", Arial, sans-serif;
+    font-weight: 200 !important;
+}
+
+#calendrier .fc-button-group{
+    background-color: #69779b;
+    border-radius: 0 !important;
+}
+.fc-toolbar-title{
+    font-family: "Abril Fatface", cursive !important;
+}
+.fc-v-event.fc-event{
+    cursor: pointer;
+    background-color: #69779b;
+}
+.fc .fc-button-primary:disabled{
+    background-color: #7d859b !important;
+}
+
+.fc-timegrid-slot-label, .fc-col-header {
+    background-color: #69779b;
+    color: var(--white);
+    text-transform: uppercase;
+}
+.modal-title{
+    font-family: "Abril Fatface", cursive;
+}
+
+@media (max-width: 576px){
+    .fc-header-toolbar .fc-today-button{
+        display: none !important;
+    }
+}

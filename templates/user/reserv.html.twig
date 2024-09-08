@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block top %}
+    <section class="hero-wrap js-fullheight" style="background-image: url({{ asset('images/bg_3.jpg') }});">
+        <div class="overlay"></div>
+        <div class="container-fluid px-0">
+            <div class="row no-gutters text align-items-end js-fullheight justify-content-center" data-scrollax-parent="true">
+                <div class="col-md-12 ftco-animate text-center">
+                    <p class="breadcrumbs"><span class="mr-2"><a href="{{ path('user_rdvs') }}">Prise de rendez-vous</a></span></p>
+                    <h1 class="bread">Prise de rdv</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block body %}
+    <form class="card" method="post" action="{{ path('reservation_valid') }}">
+        <div class="card-body">
+            <div class="alert alert-dark" role="alert">
+                <p class="m-0 p-0">Vous êtes sur le point de prendre rendez vous
+                    <br>Vérifiez les informations suivantes, avant de valider l'opération</p>
+            </div>
+            <fieldset disabled>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <label for="disabledTextInput">Nom du ou de la professionel.e</label>
+                        <input type="text" id="disabledTextInput" class="form-control" placeholder="{{ pro.fullName }}">
+                    </li>
+                    <li class="list-group-item">
+                        <label for="disabledTextInput">Date de prise de rendez-vous</label>
+                        <input type="text" id="disabledTextInput" class="form-control" placeholder="{{ start|date("d / m / Y") }}">
+                    </li>
+                    <li class="list-group-item">
+                        <label for="disabledTextInput">Heure de prise de rendez-vous</label>
+                        <input type="text" id="disabledTextInput" class="form-control" placeholder="{{ start | date('H:i') }}">
+                    </li>
+                    {% set difference = date(start).diff(date(end)) %}
+                    <li class="list-group-item">
+                        <label for="disabledTextInput">Durée du rendez vous</label>
+                        <input type="text" id="disabledTextInput" class="form-control" placeholder="{{ difference.h }} heure(s) et {{ difference.m }} minute(s)">
+                    </li>
+                    <li class="list-group-item">
+                        <label for="disabledTextInput">Rendez vous au nom de</label>
+                        <input type="text" id="disabledTextInput" class="form-control" placeholder="{{ app.user.fullName }}">
+                    </li>
+                    <li class="list-group-item">
+                        <label for="disabledTextInput">Votre numéro de téléphone</label><br>
+                        <input type="text" id="disabledTextInput" class="form-control" placeholder="{{ app.user.tel }}">
+                        <small id="emailHelp" class="form-text text-warning">Ce numéro doit être exacte sans quoi le rendez vous sera annulé</small>
+                    </li>
+                </ul>
+            </fieldset>
+        </div>
+        <div class="card-footer">
+            <input type="submit" class="btn btn-success" value="Prendre rendez vous">
+        </div>
+        <input type="hidden" name="idPro" value="{{ pro.id }}">
+        <input type="hidden" name="start" value="{{ start | date("Y-m-d H:i") }}">
+        <input type="hidden" name="end" value="{{ end | date("Y-m-d H:i") }}">
+    </form>
+{% endblock %}
+
+{% block title %}
+Reservation
+{% endblock %}
+

@@ -1,0 +1,129 @@
+{% extends 'panel/base.html.twig' %}
+
+{% block title %}Heures de travail hebdomadaires{% endblock %}
+
+{% block adminSite %}
+    <div id="calendrier"></div>
+    <div class="modal fade" id="validateRemove" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Supprimer</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Êtes vous sur de vouloir supprimer ce créneau ?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                    <button type="button" class="btn btn-danger" id="confirmSuppr">Supprimer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/panel/home.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.css" integrity="sha256-uq9PNlMzB+1h01Ij9cx7zeE2OR2pLAfRw3uUUOOPKdA=" crossorigin="anonymous">
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.css' rel='stylesheet' />
+    <link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.js" integrity="sha256-mMw9aRRFx9TK/L0dn25GKxH/WH7rtFTp+P9Uma+2+zc=" crossorigin="anonymous"></script>
+    <script>
+        let eventRm;
+        window.onload = () => {
+
+            $('#confirmSuppr').click(function (){
+                eventRm.remove();
+                $("#validateRemove").modal('hide')
+            });
+
+            let calendarElt = document.querySelector("#calendrier")
+
+            let calendar = new FullCalendar.Calendar(calendarElt, {
+                initialView: 'timeGridWeek',
+                themeSystem: 'bootstrap',
+                local: 'fr',
+                nowIndicator: true,
+                timeZone: 'Europe/Paris',
+                locale: 'fr',
+                allDaySlot: false,
+                editable: true,
+                eventResizableFromStart: true,
+                buttonText: {
+                    today: "Aujourd'hui"
+                },
+                headerToolbar: {
+                    start: 'prev,next',
+                    center: 'title',
+                    end: 'today'
+                },
+                firstDay: '{{ "now"|date("w") }}',
+                validRange:{ {% set range = "+"~(rangePro-1)~" day" %}
+                    start: '{{ "now"|date("Y-m-d H:i") }}',
+                    end: '{{ "now"|date_modify(range)|date("Y-m-d H:i") }}'
+                },
+                /*
+                businessHours: [ // specify an array instead
+                    {
+                        daysOfWeek: [ 1, 2, 3 ], // Monday, Tuesday, Wednesday
+                        startTime: '08:00', // 8am
+                        endTime: '18:00' // 6pm
+                    },
+                    {
+                        daysOfWeek: [ 4, 5 ], // Thursday, Friday
+                        startTime: '10:00', // 10am
+                        endTime: '16:00' // 4pm
+                    }
+                ],*/
+                dateClick: function(info) {
+                    let e = calendar.addEvent({
+                        start: info.dateStr,
+                        end: info.dateStr
+                    });
+                },
+                eventAdd: function (addInfo){
+                    let donnees = {
+                        "id": addInfo.event._def.defId,
+                        "start": addInfo.event._instance.range.start,
+                        "end": addInfo.event._instance.range.end
+                    }
+                    let xhr = new XMLHttpRequest();
+                    xhr.open("PUT", "{{ path('api_overtime_add') }}")
+                    xhr.send(JSON.stringify(donnees))
+                },
+                eventClick: function(info) {
+                    $("#validateRemove").modal('show')
+                    eventRm = info.event;
+                },
+                eventRemove: function (e){
+                    let donnees = {
+                        "id": e.event._def.publicId,
+                        "defId": e.event._def.defId
+                    }
+                    let xhr = new XMLHttpRequest();
+                    xhr.open("PUT", "{{ path('api_overtime_rm') }}")
+                    xhr.send(JSON.stringify(donnees))
+                },
+                eventChange: function( e ){
+                    let donnees = {
+                        "id": e.event._def.publicId,
+                        "defId": e.event._def.defId,
+                        "start": e.event._instance.range.start,
+                        "end": e.event._instance.range.end
+                    }
+                    let xhr = new XMLHttpRequest();
+                    xhr.open("PUT", "{{ path('api_overtime_edit') }}")
+                    xhr.send(JSON.stringify(donnees))
+                },
+                events: {{ data|raw }}
+            })
+            calendar.render();
+        }
+    </script>
+{% endblock %}

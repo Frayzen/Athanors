@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block top %}
+    <section class="hero-wrap js-fullheight" style="background-image: url({{ asset('images/bg_3.jpg') }});">
+        <div class="overlay"></div>
+        <div class="container-fluid px-0">
+            <div class="row no-gutters text align-items-end js-fullheight justify-content-center" data-scrollax-parent="true">
+                <div class="col-md-12 ftco-animate text-center">
+                    <p class="breadcrumbs"><span class="mr-2"><a href="{{ path('panel_supervisor_list') }}">Panel encadrant</a></span></p>
+                    <h1 class="bread">Panel des encadrants</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block title %}Liste des encadrants{% endblock %}
+{% block site %}
+    <div class="container-fluid mx-0 my-2">
+        <div class="row">
+            {% for supervisor in supervisors %}
+                <div class="col-sm-3">
+                    <div class="card text-center" style="width: 18rem;">
+                        <img src="{{ asset(supervisor.pictureFile) }}" style="width: auto; height: 200px" class="m-auto card-img-top" alt="profil of {{ supervisor.name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ supervisor.name }}</h5>
+                            <a href="{{ path('panel_supervisor_edit', {'id':supervisor.id}) }}" class="btn btn-primary">Editer</a>
+                            <a href="#" class="btn btn-danger" onclick="
+                                    $('#nameEndadrant').html('{{ supervisor.name | e('js') }}');
+                                    $('#link_suppr').attr('href', '{{ path('panel_supervisor_supr', {'id':supervisor.id}) }}')
+                                    " data-toggle="modal" data-target="#confirmModal">Supprimer</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="w-auto m-5 text-center">
+            <a href="{{ path('panel_atelier') }}">
+                <span class="p-2 btn btn-primary">Retour</span>
+            </a>
+            <a href="{{ path('panel_supervisor_create') }}">
+                <span class="p-2 btn btn-success">Ajouter un encadrant</span>
+            </a>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="modalTitle">Suppresion d'encadrant</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                    <p class="text-danger">
+                        Confirmer la suppresion de l'encadrant :
+                        <br>
+                        <span id="nameEndadrant" class='badge badge-danger'></span>
+                        <br>
+                        Cette action n'est pas réversible
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <a id="link_suppr" href="" class="btn btn-danger">Suppresion définitive</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

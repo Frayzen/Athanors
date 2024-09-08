@@ -1,0 +1,68 @@
+{% extends 'panel/base.html.twig' %}
+
+{% block title %}
+Gestion des absences
+{% endblock %}
+
+{% block adminSite %}
+
+    {{ form_start(form) }}
+    <div class="card">
+        <h5 class="card-header">Nouvelle absence</h5>
+        <div class="card-body">
+            <h5 class="card-title">Choisissez vos horaires d'absences</h5>
+
+            <div class="row my-4">
+                <div class="col">
+                    Début
+                    {{ form_widget(form.start)}}
+                </div>
+                <div class="col">
+                    Fin
+                    {{ form_widget(form.end) }}
+                </div>
+            </div>
+            {% if form_errors(form.end) %}
+
+                <div class="alert alert-danger" role="alert">
+                    {{ form_errors(form.end) }}
+                </div>
+
+            {% endif %}
+
+            <input type="submit" class="btn btn-primary" value="Ajouter">
+        </div>
+    </div>
+    {{ form_end(form) }}
+
+    <div class="row mt-3">
+    {% for act in actuals %}
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-header">
+                        {% set difference = date(act.start).diff(date(act.end)) %}
+                        <h5 class="card-title">Absence de {{ difference.d }} jour(s) {{ difference.h }} heure(s) et {{ difference.m }} minute(s)</h5>
+                    </div>
+                    <div class="card-body">
+                        <fieldset disabled>
+                                <div class="border p-2 mb-3 rounded">
+                                    <label for="disabledTextInput">Début</label>
+                                    <input type="text" id="disabledTextInput" class="form-control" placeholder="{{ act.start | date("Y / m / d H:i") }}">
+                                </div>
+                                <div class="border p-2 my-3 rounded">
+                                    <label for="disabledTextInput">Fin</label>
+                                    <input type="text" id="disabledTextInput" class="form-control" placeholder="{{ act.end | date("Y / m / d H:i") }}">
+                                </div>
+                        </fieldset>
+
+                        <form method="post" action="{{ path('admin_exception') }}">
+                            <input type="hidden" name="id" value="{{ act.id }}">
+                            <input type="submit" name="deleteElem" class="mt-1 btn btn-outline-danger" value="Supprimer">
+                        </form>
+                    </div>
+                </div>
+            </div>
+    {% endfor %}
+    </div>
+{% endblock %}
+

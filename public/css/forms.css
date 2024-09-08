@@ -1,0 +1,21 @@
+#form .header h1{
+    font-weight: 400;
+    font-size: 4em;
+}
+#form .content{
+    text-transform: uppercase;
+    font-weight: normal;
+    font-weight: 200;
+}
+#form *:not(input){
+    color: var(--white) !important;
+}
+#form input{
+    color: var(--dark) !important;
+}
+#form button{
+    text-transform: uppercase;
+}
+.form-register{
+    padding: 25vh 0 10vh 0;
+}

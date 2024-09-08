@@ -1,0 +1,60 @@
+{% extends 'panel/base.html.twig' %}
+
+{% block title %}Administration des rendez-vous{% endblock %}
+
+{% block adminSite %}
+    {% for rdv in invalidate %}
+        <div class="card text-center">
+            <div class="card-header">
+                {{ rdv.client.firstName }} {{ rdv.client.lastName }}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Le {{ rdv.start | date('d/m à H:i') }}</h5>
+                <p class="card-text">{{ rdv.client.email }}<br>{{ rdv.client.tel }}</p>
+                <div class="flex-row">
+                    <a href="{{ path("panel_validate", {'id':rdv.id}) }}" class="btn btn-primary m-2">Valider le rendez vous</a>
+                    <a href="#" class="btn btn-warning m-2" data-toggle="modal" data-target="#confirm_suppr">Supprimer le rendez vous</a>
+                    <a href="#" class="btn btn-danger m-2" data-toggle="modal" data-target="#confirm_block">Bloquer l'utilisateur</a>
+                </div>
+            </div>
+            <div class="card-footer text-muted">
+                {% if rdv.client.regular %}
+                    <span class="badge badge-success">Patient régulié</span>
+                {% else %}
+                    <span class="badge badge-warning">Nouveau patient</span>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+
+
+
+    <div id="modals">
+        <div class="modal fade" id="confirm_suppr" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-body text-warning">
+                        Confirmer la suppression ?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                        <button type="button" class="btn btn-warning">Confirmer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="confirm_block" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-body text-danger">
+                        Confirmer le blocage ?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                        <button type="button" class="btn btn-danger">Confirmer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

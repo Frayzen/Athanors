@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    Les analystes
+{% endblock %}
+
+
+{% block top %}
+	<section class="hero-wrap js-fullheight" style="background-image: url({{ asset('images/bg_3.jpg') }});">
+		<div class="overlay"></div>
+		<div class="container-fluid px-0">
+			<div class="row no-gutters text align-items-end js-fullheight justify-content-center" data-scrollax-parent="true">
+				<div class="col-md-12 ftco-animate text-center">
+					<p class="breadcrumbs"><span>Selection</span></p>
+					<h1 class="bread">Analystes</h1>
+				</div>
+			</div>
+		</div>
+	</section>
+{% endblock %}
+
+{% block body %}
+	    <section class="ftco-section ftco-no-pb ftco-no-pt">
+	    	<div class="container-fluid px-0">
+	    		<div class="row no-gutters">
+	    			<div class="col-md-12 blog-wrap">
+	    				<div class="row flex-wrap no-gutters align-items-center position-relative">
+							{% for adm in admins %}
+								{% if adm.useAgenda %}
+									<a href="{{ path('app_analyst', {id:adm.id}) }}" class="col-12 img col-sm-6 js-fullheight d-flex" style="background-image: url({{ asset(adm.imageFile) }});">
+										<h1 class="abril text-white text-center mt-auto mx-auto mt-3">{{ adm.user.fullName }}</h1>
+									</a>
+								{% endif %}
+							{% endfor %}
+	    				</div>
+					</div>
+				</div>
+            </div>
+        </section>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Les ateliers{% endblock %}
+
+
+{% block top %}
+    <section class="hero-wrap js-fullheight" style="background-image: url({{ asset('images/bg_3.jpg') }});">
+        <div class="overlay"></div>
+        <div class="container-fluid px-0">
+            <div class="row no-gutters text align-items-end js-fullheight justify-content-center" data-scrollax-parent="true">
+                <div class="col-md-12 ftco-animate text-center">
+                    <p class="breadcrumbs"><span class="mr-2">Liste Des Ateliers</span></p>
+                    <h1 class="bread">Les ateliers</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block body %}
+    <section class="ftco-section ftco-no-pb ftco-no-pt">
+        <div class="container-fluid px-0">
+            <div class="row no-gutters">
+                {% if list_atelier | length > 0 %}
+                    {% set first_atelier = list_atelier |first %}
+                    <div class="col-md-12 blog-wrap bg-darken">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col-md-6 d-flex justify-content-center align-items-center order-md-last js-fullheight">
+                                <div class="img"
+                                     style="background-image: url({{ asset(first_atelier.picture) }});"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text p-md-5 p-4 ftco-animate">
+                                    <h2 class="mb-4"><a href="blog-single.html">{{ first_atelier.name }}</a></h2>
+                                    <p>{{ first_atelier.description }}</p>
+                                    <p class="text-light">Cet atelier se déroulera du <span
+                                                class="badge badge-secondary">{{ first_atelier.start | date('d/m/Y') }}</span>
+                                        au <span
+                                                class="badge badge-secondary">{{ first_atelier.end | date('d/m/Y') }}</span>
+                                    </p></p>
+                                    <p class="mb-0 mt-4"><a
+                                                href="{{ path('atelier_consult', {'id':first_atelier.id}) }}"
+                                                class="btn btn-primary">Découvrir l'atelier <span
+                                                    class="ion-ios-arrow-forward"></span></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% set atelier_id = 0 %}
+                    {% for atelier in list_atelier | slice(1) %}
+                        {% if atelier_id % 2 == 0 %}
+                            <div class="col-md-12 blog-wrap">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col-md-6 img js-fullheight"
+                                         style="background-image: url({{ asset(atelier.picture) }});">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="text p-md-5 p-4 ftco-animate fadeInUp">
+                                            <h2 class="mb-4"><a href="blog-single.html">{{ atelier.name }}</a></h2>
+                                            <p>{{ atelier.description }}</p>
+                                            <p class="text-dark">Cet atelier se déroulera du <span
+                                                        class="badge badge-secondary">{{ atelier.start | date('d/m/Y') }}</span>
+                                                au <span
+                                                        class="badge badge-secondary">{{ atelier.end | date('Y-m-d') }}</span>
+                                            </p></p>
+                                            <p class="mb-0 mt-4"><a
+                                                        href="{{ path('atelier_consult', {'id':atelier.id}) }}"
+                                                        class="btn btn-primary">Découvrir l'atelier <span
+                                                            class="ion-ios-arrow-forward"></span></a></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="col-md-12 blog-wrap">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col-md-6 img js-fullheight order-md-last"
+                                         style="background-image: url({{ asset(atelier.picture) }});">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="text p-md-5 p-4 ftco-animate fadeInUp">
+                                            <h2 class="mb-4"><a href="blog-single.html">{{ atelier.name }}</a></h2>
+                                            <p>{{ atelier.description }}</p>
+                                            <p class="text-dark">Cet atelier se déroulera du <span
+                                                        class="badge badge-secondary">{{ atelier.start | date('Y-m-d') }}</span>
+                                                au <span
+                                                        class="badge badge-secondary">{{ atelier.end | date('Y-m-d') }}</span>
+                                            </p></p>
+                                            <p class="mb-0 mt-4"><a
+                                                        href="{{ path('atelier_consult', {'id':atelier.id}) }}"
+                                                        class="btn btn-primary">Découvrir l'atelier <span
+                                                            class="ion-ios-arrow-forward"></span></a></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% set atelier_id = atelier_id + 1 %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

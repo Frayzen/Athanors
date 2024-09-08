@@ -1,0 +1,158 @@
+{% extends 'panel/base.html.twig' %}
+
+{% block title %}Annulation des rendez-vous{% endblock %}
+
+{% block adminSite %}
+    <div id="calendrier"></div>
+    <div class="modal fade" id="validateRemove" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Supprimer</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Êtes vous sur de vouloir supprimer ce rendez vous ?
+                    <input class="form-control" id="date" type="text" placeholder="" readonly>
+                    <input class="form-control" id="name" type="text" placeholder="" readonly>
+
+                    <div class="form-group">
+                        <label for="exampleFormControlTextarea1"><small>(Optionel)</small> Détails de l'annulation</label>
+                        <textarea class="form-control" id="reasonText" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                    <button type="button" class="btn btn-danger" id="confirmSuppr">Supprimer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="rdvAsk">
+        {% for cancel in cancels %}
+            <div class="card my-3">
+                <h5 class="card-header">Demande par {{ cancel.client.fullName }}</h5>
+                <div class="card-body">
+                    <h5 class="card-title">Pour le {{ cancel.start | date("d / m / Y à H:i") }}</h5>
+                    <span>Requête du patient:</span>
+
+                    <div class="alert alert-secondary">
+                        {{ cancel.askCancel.reason }}
+                    </div>
+
+                    <button idRm="{{ cancel.id }}" class="rm_btns btn btn-danger">Annuler le rendez vous</button>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if viewedNow %}
+        <div class="modal fade" id="modalInfo" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Nouvelle(s) demande(s)</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Un ou des utilisateurs on demandé une annulation de rendez-vous, vous pouvez les consulter en cliquant sur le bouton ci-dessous</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Ignorer</button>
+                        <a href="#rdvAsk" type="button" id="consult" class="btn btn-outline-success">Consulter</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/panel/home.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.css" integrity="sha256-uq9PNlMzB+1h01Ij9cx7zeE2OR2pLAfRw3uUUOOPKdA=" crossorigin="anonymous">
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.css' rel='stylesheet' />
+    <link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.js" integrity="sha256-mMw9aRRFx9TK/L0dn25GKxH/WH7rtFTp+P9Uma+2+zc=" crossorigin="anonymous"></script>
+    <script>
+        let eventRm;
+        let toRm = null;
+        window.onload = () => {
+            $("button.rm_btns").click(function (){
+                toRm = $(this).closest("div.card");
+                eventRm = calendar.getEventById($(this).attr("idRm"));
+                let start = new Date(eventRm._instance.range.start);
+                $("#date").attr("placeholder", start.yyyymmdd())
+                $("#name").attr("placeholder", eventRm._def.title)
+                $("#validateRemove").modal('show')
+            });
+
+            $('#confirmSuppr').click(function (){
+                if (toRm != null)
+                    toRm.remove()
+                toRm = null;
+                eventRm.remove();
+                $("#validateRemove").modal('hide')
+            });
+
+            let calendarElt = document.querySelector("#calendrier")
+
+            let calendar = new FullCalendar.Calendar(calendarElt, {
+                initialView: 'timeGridWeek',
+                themeSystem: 'bootstrap',
+                local: 'fr',
+                nowIndicator: true,
+                timeZone: 'Europe/Paris',
+                locale: 'fr',
+                allDaySlot: false,
+                eventResizableFromStart: true,
+                buttonText: {
+                    today: "Aujourd'hui"
+                },
+                headerToolbar: {
+                    start: 'prev,next',
+                    center: 'title',
+                    end: 'today'
+                },
+                firstDay: '{{ "now"|date("w") }}',
+                validRange:{ {% set range = "+"~(rangePro-1)~" day" %}
+                    start: '{{ "now"|date("Y-m-d H:i") }}',
+                    end: '{{ "now"|date_modify(range)|date("Y-m-d H:i") }}'
+                },
+                eventRemove: function (rmInfo){
+                    let donnees = {
+                        "id": rmInfo.event._def.publicId,
+                        "reason": $("#reasonText").val(),
+                    }
+                    let xhr = new XMLHttpRequest();
+                    xhr.open("PUT", "{{ path('api_cancel_rm') }}")
+                    xhr.send(JSON.stringify(donnees))
+                },
+                eventClick: function(info) {
+                    let start = new Date(info.event._instance.range.start);
+                    $("#date").attr("placeholder", start.yyyymmdd())
+                    $("#name").attr("placeholder", info.event._def.title)
+                    eventRm = info.event;
+                    $("#validateRemove").modal('show')
+                },
+                events: {{ data|raw }}
+            })
+            calendar.render();
+
+            {% if viewedNow %}
+                    $("#modalInfo").modal("show");
+                    $("#consult").click(() => {
+                        $("#modalInfo").modal("hide");
+                    })
+            {% endif %}
+        }
+    </script>
+{% endblock %}

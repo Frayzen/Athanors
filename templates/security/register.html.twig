@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
+{% endblock %}
+
+{% block top %}
+    <section id="form" class="register-form d-flex w-100 bg-black">
+        <div class="col-md-7 col-lg-5 col-sm-11 m-auto h-auto">
+            <div class="header">
+                <h1 class="abril text-weight-bold">Inscription</h1>
+            </div>
+            <div class="content poppins">
+                <form name="register" method="post">
+                    {% for er_msg in list_error %}
+                        <div class="form-group mb-3">
+                            <span class="badge-danger">{{ er_msg.message }}</span>
+                        </div>
+                    {% endfor %}
+                    <div class="form-group">
+                        <label for="register_firstName" class="required">Prénom</label>
+                        <input type="text" id="register_firstName" name="register[firstName]" required="required"
+                               class="form-control" autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label for="register_lastName" class="required">Nom</label>
+                        <input type="text" id="register_lastName" name="register[lastName]" required="required"
+                               class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="register_email" class="required">Adresse mail</label>
+                        <input type="email" id="register_email" name="register[email]" required="required"
+                               class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="register_password_first" class="required">Mot de passe</label>
+                        <input type="password" id="register_password_first" name="register[password][first]"
+                               required="required" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="register_password_second" class="required">Répétez le mot de passe</label>
+                        <input type="password" id="register_password_second" name="register[password][second]"
+                               required="required" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="register_tel" class="required">Numéro de téléphone (+33) :</label>
+                        <input type="tel" id="register_tel" name="register[tel]" required="required"
+                               class="form-control">
+                    </div>
+                    <div class="form-group d-flex flex-column flex-xl-row justify-content-between">
+                        <button type="submit" id="register_Valider" name="register[Valider]" class="btn-primary btn">
+                            Valider
+                        </button>
+                        <a href="{{ path('app_login') }}" class="my-2 my-xl-0">Déjà un compte ? Se connecter</a>
+                    </div>
+                    <input type="hidden" id="register__token" name="register[_token]"
+                           value="{{ csrf_token('register') }}">
+                </form>
+            </div>
+        </div>
+    </section>
+{% endblock %}

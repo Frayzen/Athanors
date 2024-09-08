@@ -1,0 +1,29 @@
+{#
+{% extends 'panel/base.html.twig' %}
+#}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Ma page personelle{% endblock %}
+
+{% block top %}
+    <section class="hero-wrap js-fullheight" style="background-image: url({{ asset('images/bg_3.jpg') }});">
+        <div class="overlay"></div>
+        <div class="container-fluid px-0">
+            <div class="row no-gutters text align-items-end js-fullheight justify-content-center" data-scrollax-parent="true">
+                <div class="col-md-12 ftco-animate text-center">
+                    <p class="breadcrumbs"><span class="mr-2"><a href="{{ path('panel_my_page') }}">Ma page d'analyste</a></span></p>
+                    <h1 class="bread">Ma page personelle</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block body %}
+    <div class="container">
+        <div class="my-3 text-center">
+            <a href="{{ path('panel_atelier') }}" class="btn-block btn-warning rounded m-auto">Retour (sans sauvegarder les changements)</a>
+        </div>
+        {{ form(form) }}
+    </div>
+{% endblock %}

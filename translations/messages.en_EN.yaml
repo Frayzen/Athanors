@@ -1,0 +1,4 @@
+mail:
+  already_used: "This mail is already used"
+  unavailable: "This mail is not valid"
+field_empty: "Every field are not filled"

@@ -1,0 +1,318 @@
+{% extends 'base.html.twig' %}
+
+{% block top %}
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <section class="hero-wrap js-fullheight" style="background-image: url({{ asset('images/bg_3.jpg') }});">
+        <div class="overlay"></div>
+        <div class="container-fluid px-0">
+            <div class="row no-gutters text align-items-end js-fullheight justify-content-center" data-scrollax-parent="true">
+                <div class="col-md-12 ftco-animate text-center">
+                    <p class="breadcrumbs"><span class="mr-2"><a href="{{ path('panel_atelier') }}">Panel ateliers</a></span></p>
+                    <h1 class="bread">Edition de l'agenda</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block title %}Edition de l'agenda{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.css" integrity="sha256-uq9PNlMzB+1h01Ij9cx7zeE2OR2pLAfRw3uUUOOPKdA=" crossorigin="anonymous">
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.css' rel='stylesheet' />
+    <link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
+{% endblock %}
+{% block site %}
+
+    <div class="mx-auto py-3 d-flex">
+        <a href="{{ path('panel_atelier') }}" class="btn btn-primary btn-lg m-auto">Retour</a>
+    </div>
+
+    <div id="calendrier"></div>
+
+    <div class="modal fade" id="editSession" tabindex="1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Editer / Supprimer la session</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="$('#editSession').modal('hide');">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#infos" type="button" role="tab" aria-controls="infos" aria-selected="true">Description</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#members_presents" type="button" role="tab" aria-controls="members_presents">Présence(s) <span class="badge badge-secondary" id="presentSize"></span></button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#members_absents" type="button" role="tab" aria-controls="members_absents">Absence(s) <span class="badge badge-secondary" id="absentSize"></span></button>
+                        </li>
+                    </ul>
+                    <div class="tab-content p-3 mb-3 border" id="myTabContent">
+                        <div class="tab-pane fade show active" id="infos" role="tabpanel" aria-labelledby="infos">
+                            <div class="mb-3">
+                                <input id="labelSession" class="form-control" type="text" value="" disabled readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleFormControlInput1" class="form-label">Nom de la session</label>
+                                <input type="text" class="form-control" id="nameSession" placeholder="Nom de la session">
+                            </div>
+                            {% if not atelier.sessionsMandatory %}
+                                <div class="form-group"><label for="delaySession">Dernier délai de changement de réponse</label>
+                                <input type="datetime-local" id="delaySession" class="datepicker form-control"></div>
+                            {% endif %}
+                            <div class="mb-3">
+                                <label for="exampleFormControlTextarea1" class="form-label">Thématique(s) abordée(s)</label>
+                                <textarea class="form-control" id="themeSession" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="members_presents" role="tabpanel" aria-labelledby="members_presents">
+                            <div class="list-group" id="presents">
+
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="members_absents" role="tabpanel" aria-labelledby="members_absents">
+                            <div class="list-group" id="absents">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="confirmData" data-dismiss="modal">Valider</button>
+                    <button type="button" class="btn btn-secondary" onclick="$('#editSession').modal('hide');" data-dismiss="modal">Fermer</button>
+                    <button type="button" class="btn btn-danger" id="confirmSuppr">Supprimer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.js" integrity="sha256-mMw9aRRFx9TK/L0dn25GKxH/WH7rtFTp+P9Uma+2+zc=" crossorigin="anonymous"></script>
+    <script>
+        function roundToTen(nmbr){
+            if (nmbr > 10)
+                return nmbr
+            else
+                return "0"+nmbr
+        }
+        function format(date){
+            date.setHours(date.getHours() - 1);
+            let ret = roundToTen(date.getDate())+"/"+roundToTen(date.getMonth())+"/"+roundToTen(date.getFullYear())+" à "+roundToTen(date.getHours())+":"+roundToTen(date.getMinutes())
+            date.setHours(date.getHours() + 1);
+            return ret;
+        }
+        var values = {
+            {% for session in atelier.ateliersessions %}
+            '{{ session.calendarId }}':{
+                'theme':'{{ session.themes|e('js') }}',
+                'name':'{{ session.name|e('js') }}',
+                {% if not atelier.sessionsMandatory %}
+                    'maxDayAnswer':'{{ session.delayAnswer|date('Y-m-d\\TH:i') }}',
+                {% endif %}
+                'presents':{
+                    {% if not atelier.sessionsMandatory %}
+                        {% for answer in session.answerUserSessions %}
+                            {% if answer.presence %}
+                            '{{ answer.id }}': {
+                                'fullName': "{{ answer.user.fullName | e }}",
+                                'email': "{{ answer.user.email | e }}",
+                                'tel': "{{ answer.user.tel | e }}"
+                            }
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        {% for user in atelier.members %}
+                            '{{ user.id }}': {
+                                'fullName': "{{ user.fullName | e }}",
+                                'email': "{{ user.email | e }}",
+                                'tel': "{{ user.tel | e }}"
+                            }
+                        {% endfor %}
+                    {% endif %}
+                },
+                'absents':{
+                    {% if not atelier.sessionsMandatory %}
+                    {% for answer in session.answerUserSessions %}
+                    {% if not answer.presence %}
+                    '{{ answer.id }}': {
+                        'fullName': "{{ answer.user.fullName | e }}",
+                        'email': "{{ answer.user.email | e }}",
+                        'tel': "{{ answer.user.tel | e }}"
+                    }
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                },
+            },
+            {% endfor %}
+        }
+        let eventEdit;
+        window.onload = () => {
+            let calendarElt = document.querySelector("#calendrier")
+            let calendar = new FullCalendar.Calendar(calendarElt, {
+                initialView: 'timeGridWeek',
+                themeSystem: 'bootstrap',
+                local: 'fr',
+                nowIndicator: true,
+                timeZone: 'Europe/Paris',
+                locale: 'fr',
+                allDaySlot: false,
+                editable: true,
+                eventResizableFromStart: true,
+                buttonText: {
+                    today: "Aujourd'hui"
+                },
+                headerToolbar: {
+                    start: 'prev,next',
+                    center: 'title',
+                    end: 'today'
+                },
+                firstDay: '{{ atelier.start |date("w") }}',
+                validRange:{
+                    start: '{{ atelier.start | date('Y-m-d H:i') }}',
+                    end: '{{ atelier.end |date('Y-m-d H:i') }}'
+                },
+                dateClick: function(info) {
+                    let e = calendar.addEvent({
+                        start: info.dateStr,
+                        end: info.dateStr
+                    });
+                },
+                eventAdd: function (addInfo){
+                    let donnees = {
+                        "id": addInfo.event._def.defId,
+                        "start": addInfo.event._instance.range.start,
+                        "end": addInfo.event._instance.range.end
+                    }
+                    values[addInfo.event._def.defId] = {
+                        'theme':'',
+                        'name':''
+                    }
+                    addInfo.event._def.publicId = addInfo.event._def.defId;
+                    let xhr = new XMLHttpRequest();
+                    values[addInfo.event._def.defId]['theme'] = "";
+                    values[addInfo.event._def.defId]['name'] = "";
+                    values[addInfo.event._def.defId]['maxDayAnswer'] = 0;
+                    values[addInfo.event._def.defId]['presents'] = {};
+                    values[addInfo.event._def.defId]['absents'] = {};
+                    xhr.open("PUT", "{{ path('api_atelier_agenda_add', {'id':atelier.id}) }}")
+                    xhr.onload = function () {
+                        console.log(xhr.response)
+                    };
+                    xhr.send(JSON.stringify(donnees))
+                },
+                eventClick: function(info) {
+                    eventEdit = info.event;
+                    $("#labelSession").val("Session du "+format(info.event._instance.range.start)+" au "+format(info.event._instance.range.end));
+                    $("#themeSession").val(values[eventEdit.id]['theme']);
+                    $("#nameSession").val(values[eventEdit.id]['name']);
+                    {% if not atelier.sessionsMandatory %}
+                    $("#delaySession").val(values[eventEdit.id]['maxDayAnswer']);
+                    {% endif %}
+
+                    $("#presentSize").html(Object.keys(values[eventEdit.id]['presents']).length+"/{{ atelier.members | length }}")
+                    $("#absentSize").html(Object.keys(values[eventEdit.id]['absents']).length+"/{{ atelier.members | length }}")
+
+                    let txtPresents = ' <h3>Liste des membres inscrits présent:</h3>';
+                    if(Object.keys(values[eventEdit.id]['presents']).length == 0) {
+                        txtPresents+="<p>Aucun membre n'est encore inscrit présent</p>";
+                    }else {
+                        for (let presentsId in values[eventEdit.id]['presents']) {
+                            let presents = values[eventEdit.id]['presents'][presentsId];
+                            txtPresents+=''+
+                            '<a class="list-group-item list-group-item-action" aria-current="true">'
+                                +'<div class="d-flex w-100 justify-content-between">'
+                                +'<h5 class="mb-1">'+presents.fullName+'</h5>'
+                                +'</div>'
+                                +'<p class="mb-1"><b>Mail: </b>'+presents.email+'</p>'
+                                +'<p class="mb-1"><b>Tel: </b>'+presents.tel+'</p>'
+                                +'<small></small>'
+                            +'</a>';
+                        }
+                    }
+                    $("#presents").html(txtPresents);
+
+                    let txtAbsents = ' <h3>Liste des membres inscrits absent:</h3>';
+                    if(Object.keys(values[eventEdit.id]['absents']).length == 0) {
+                        txtAbsents+="<p>Aucun membre n'est encore inscrit absent</p>";
+                    }else {
+                        for (let absentsId in values[eventEdit.id]['absents']) {
+                            let absents = values[eventEdit.id]['absents'][absentsId];
+                            txtAbsents+=''+
+                                '<a class="list-group-item list-group-item-action" aria-current="true">'
+                                +'<div class="d-flex w-100 justify-content-between">'
+                                +'<h5 class="mb-1">'+absents.fullName+'</h5>'
+                                +'</div>'
+                                +'<p class="mb-1"><b>Mail: </b>'+absents.email+'</p>'
+                                +'<p class="mb-1"><b>Tel: </b>'+absents.tel+'</p>'
+                                +'<small></small>'
+                                +'</a>';
+                        }
+                    }
+                    $("#absents").html(txtAbsents);
+
+                    $("#editSession").modal('show')
+                },
+                eventRemove: function (e){
+                    let donnees = {
+                        "id": e.event._def.publicId,
+                        "defId": e.event._def.defId
+                    }
+                    let xhr = new XMLHttpRequest();
+                    xhr.open("PUT", "{{ path('api_atelier_agenda_rm', {'id':atelier.id}) }}")
+                    xhr.send(JSON.stringify(donnees))
+                },
+                eventChange: function( e ){
+                    let donnees = {
+                        "id": e.event._def.publicId,
+                        "defId": e.event._def.defId,
+                        "start": e.event._instance.range.start,
+                        "end": e.event._instance.range.end
+                    }
+                    let xhr = new XMLHttpRequest();
+                    xhr.open("PUT", "{{ path('api_atelier_agenda_edit', {'id':atelier.id}) }}")
+                    xhr.send(JSON.stringify(donnees))
+                },
+                events: {{ data|raw }}
+            })
+            calendar.render();
+
+
+
+            $('#confirmSuppr').click(function (){
+                eventEdit.remove();
+                $("#editSession").modal('hide')
+            });
+
+            $('#confirmData').click(function (){
+                $("#editSession").modal('hide')
+                let donnees = {
+                    "id": eventEdit.id,
+                    "theme": $("#themeSession").val(),
+                    "maxDayAnswer": $("#delaySession").val(),
+                    "name": $("#nameSession").val()
+                };
+                values[eventEdit.id]['theme'] = $("#themeSession").val();
+                values[eventEdit.id]['name'] = $("#nameSession").val();
+                values[eventEdit.id]['maxDayAnswer'] = $("#delaySession").val();
+
+                eventEdit.setProp("title", $("#nameSession").val());
+
+                let xhr = new XMLHttpRequest();
+                xhr.open("PUT", "{{ path('api_atelier_session_edit', {'id':atelier.id}) }}")
+
+                xhr.onload = function () {
+                    console.log(xhr.response)
+                };
+
+                xhr.send(JSON.stringify(donnees))
+            });
+
+        }
+    </script>
+{% endblock %}

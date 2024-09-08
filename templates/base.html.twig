@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Athanors!{% endblock %}</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Abril+Fatface&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ asset('css/open-iconic-bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/animate.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/owl.carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/owl.theme.default.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/magnific-popup.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/aos.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/ionicons.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/bootstrap-datepicker.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/jquery.timepicker.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/flaticon.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/icomoon.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    {% block stylesheets %}{% endblock %}
+</head>
+
+<body>
+    <div class="page">
+        <nav id="colorlib-main-nav" role="navigation">
+            <a href="#" class="js-colorlib-nav-toggle colorlib-nav-toggle active"><i></i></a>
+            <div class="js-fullheight colorlib-table">
+                <div class="img" style="background-image: url({{ asset('images/bg_3.jpg')}});"></div>
+                <div class="colorlib-table-cell js-fullheight">
+                    <div class="row no-gutters">
+                        <div class="col-md-12 text-center">
+                            <div class="mx-auto semi-transparent m-2">
+                                <h1 class="mb-4"><a href="{{ path('home')}}" class="logo">Athanors</a></h1>
+                                <ul>
+                                    {#
+                                    <li><a href="{{ path('home') }}"><span>L'association</span></a></li>
+                                    #}
+                                    <li><a href="{{ path('travail_voyage') }}"><span>Travail sur soi</span></a></li>
+                                    <li><a href="{{ path('app_analystes') }}"><span>Approche Jungienne</span></a></li>
+                                    <li><a href="{{ path('app_analystes') }}"><span>Analystes</span></a></li>
+                                    <li><a href="{{ path('list_atelier') }}"><span>Les ateliers</span></a></li>
+                                    <li><a href="{{ path('list_intervenants') }}"><span>Les intervenants</span></a></li>
+                                    {% for page in extraPagesRepo.findAll() %}
+                                    <li><a href="{{ path('extra_page', {id:page.id}) }}"><span>{{ page.name
+                                                }}</span></a>
+                                    </li>
+                                    {% endfor %}
+
+                                    {#
+                                    <li><a href="{{ path('app_schedulers') }}"><span>Pour prendre rendez-vous</span></a>
+                                    </li>
+                                    #}
+                                    {% if app.user %}
+
+                                    {#
+                                    <li>
+                                        <a href="{{ path('user_rdvs') }}">
+                                            <span>
+                                                Mes rendez-vous
+                                                {% set badgeRdv = app.user.cancelledRdvsNotViewed | length %}
+                                                {% set totalUser = badgeRdv %}
+                                                {% if totalUser > 0 %}
+                                                - {{ totalUser }} Notification(s)
+                                                {% endif %}
+                                            </span>
+                                        </a>
+                                    </li>
+                                    #}
+                                    <li>
+                                        <a href="{{ path('user_ateliers') }}">
+                                            <span>
+                                                Mes ateliers
+                                            </span>
+                                        </a>
+                                    </li>
+                                    </li>
+
+                                    {% if app.user.pro is not null and app.user.pro.canManageAtelier %}
+                                    <li><a href="{{ path('panel_atelier') }}"><span>Panel Administrateur</span></a></li>
+                                    {% endif %}
+                                    {#
+                                    {% if app.user.pro is not null and app.user.pro.useAgenda %}
+                                    {% set newCancelNotViewed = app.user.pro.askCancelNotViewed | length %}
+                                    {% set totalAdmin = newCancelNotViewed %}
+                                    {% set newRdvNotViewed = app.user.pro.rdvNotViewed | length %}
+                                    {% set totalAdmin = totalAdmin + newRdvNotViewed %}
+
+                                    <li>
+                                        <a href="{{ path('panel_pro') }}">
+                                            <span>
+                                                Gestion des rendez-vous
+                                                {% if totalAdmin > 0 %}
+                                                - {{ totalAdmin }} Notification(s)
+                                                {% endif %}
+                                            </span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    #}
+                                    <li><a href="{{ path('app_logout') }}"><span>Déconnexion</span></a></li>
+                                    {% else %}
+                                    <li><a href="{{ path('app_register') }}"><span>Inscription</span></a></li>
+                                    <li><a href="{{ path('app_login') }}"><span>Connexion</span></a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </nav>
+
+        <div id="colorlib-page">
+            <header style="background: #212121; position: fixed;">
+                <div class="container">
+                    <div class="colorlib-navbar-brand">
+                        <a class="colorlib-logo" href="{{ path('home') }}">Athanors</a>
+                    </div>
+                    <a href="#" class="js-colorlib-nav-toggle colorlib-nav-toggle"><i></i></a>
+                </div>
+            </header>
+            {% block top %}
+            <section class="hero-wrap js-fullheight" style="background-image: url({{ asset('images/bg_3.jpg') }});">
+                <div class="overlay"></div>
+                <div class="container-fluid px-0">
+                    <div class="row no-gutters text align-items-end js-fullheight justify-content-center"
+                        data-scrollax-parent="true">
+                        <div class="col-md-12 ftco-animate text-center">
+                            <p class="breadcrumbs"><span class="mr-2"><a href="{{ path('home') }}"></a></span>
+                                <span></span>
+                            </p>
+                            <h1 class="bread"></h1>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {% endblock %}
+            {% block site %}{% endblock %}
+            {% block body %}{% endblock %}
+        </div>
+
+        <footer class="ftco-footer ftco-section img">
+            <div class="overlay"></div>
+            <div class="container">
+                <div class="row mb-5">
+                    <div class="col-lg-3">
+                        <div class="ftco-footer-widget mb-4">
+                            <h2 class="ftco-heading-2 logo"><a href={{ path('home') }}>Athanors</a></h2>
+                            <p>
+                                Approche par le
+                            </p>
+                            <p>
+                                Travail
+                            </p>
+                            <p>
+                                Hermétique et
+                            </p>
+                            <p>
+                                Analytique sur la
+                            </p>
+                            <p>
+                                Naissance et l’
+                            </p>
+                            <p>
+                                Oeuvre des
+                            </p>
+                            <p>
+                                Rêves et des
+                            </p>
+                            <p>
+                                Symboles
+                            </p>
+                            <ul class="ftco-footer-social list-unstyled float-md-left float-lft mt-5">
+                                {# <li class="ftco-animate"><a href="#"><span class="icon-twitter"></span></a></li> #}
+                                <li class="ftco-animate"><a target="_blank"
+                                        href="https://www.facebook.com/derive.enrive"><span
+                                            class="icon-facebook"></span></a></li>
+                                {# <li class="ftco-animate"><a target="_blank"
+                                        href="https://www.instagram.com/deriveenrive/"><span
+                                            class="icon-instagram"></span></a></li>
+                                #}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="ftco-footer-widget mb-4">
+                            <h2 class="ftco-heading-2">Les derniers ateliers</h2>
+                            {% for atelier in ateliersRepo.findAllFromNow(2) %}
+                            <div class="block-21 mb-4 d-flex">
+                                <a class="blog-img mr-4"
+                                    style="background-image: url({{ asset(atelier.picture) }});"></a>
+                                <div class="text">
+                                    <h3 class="heading"><a href="{{ path('atelier_consult', {'id':atelier.id}) }}">{{
+                                            atelier.name }}</a></h3>
+                                    <div class="meta">
+                                        <div><a href="#"><span class="icon-calendar"></span> {{ atelier.start |
+                                                date('m/d/Y') }}</a></div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="ftco-footer-widget mb-4 ml-md-4">
+                            <h2 class="ftco-heading-2">Liens du site</h2>
+                            <ul class="list-unstyled">
+                                <li><a href="{{ path('home') }}" class="py-2 d-block">Accueil</a></li>
+                                <li><a href="{{ path('list_atelier') }}" class="py-2 d-block">Les ateliers</a></li>
+                                {% if app.user %}
+                                <li><a href="{{ path('app_logout') }}" class="py-2 d-block">Déconnexion</a></li>
+                                {% else %}
+                                <li><a href="{{ path('app_login') }}" class="py-2 d-block">Connexion</a></li>
+                                <li><a href="{{ path('app_register') }}" class="py-2 d-block">Inscription</a></li>
+                                {% endif %}
+                                {#
+                                <li><a href="{{ path('app_schedulers') }}" class="py-2 d-block">Les Agendas</a></li>
+                                #}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="ftco-footer-widget mb-4">
+                            <h2 class="ftco-heading-2">Une question ?</h2>
+                            <div class="block-23 mb-3">
+                                <ul>
+                                    <li><a href="tel:0783092608"><span class="icon icon-phone"></span><span
+                                                class="text">+33 07 83 09 26 08</span></a></li>
+                                    <li><a href="tel:0783712759"><span class="icon icon-phone"></span><span
+                                                class="text">+33 07 83 71 27 59</span></a></li>
+                                    <li><a href="mailto:athanors@athanors.fr"><span
+                                                class="icon icon-envelope"></span><span
+                                                class="text">athanors@athanors.fr</span></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 text-center">
+
+                        <p><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                            Copyright &copy;
+                            <script>document.write(new Date().getFullYear());</script> All rights reserved | This
+                            template is made with <i class="icon-heart" aria-hidden="true"></i> by <a
+                                href="https://colorlib.com" target="_blank">Colorlib</a>
+                            <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- loader -->
+        <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px">
+                <circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee" />
+                <circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10"
+                    stroke="#F96D00" />
+            </svg></div>
+    </div>
+</body>
+
+<script>
+    Date.prototype.yyyymmdd = function () {
+        var mm = this.getMonth() + 1; // getMonth() is zero-based
+        var dd = this.getDate();
+
+        return [this.getFullYear(),
+        (mm > 9 ? '' : '0') + mm,
+        (dd > 9 ? '' : '0') + dd
+        ].join('/');
+    };
+</script>
+<script src="{{ asset('js/jquery.min.js') }}"></script>
+<script src="{{ asset('js/jquery-migrate-3.0.1.min.js') }}"></script>
+{% block bootstrap %}
+<script src="{{ asset('js/popper.min.js') }}"></script>
+<script src="{{ asset('js/bootstrap.min.js') }}"></script><!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+{% endblock %}
+
+<script src="{{ asset('js/jquery.easing.1.3.js') }}"></script>
+<script src="{{ asset('js/jquery.waypoints.min.js') }}"></script>
+<script src="{{ asset('js/jquery.stellar.min.js') }}"></script>
+<script src="{{ asset('js/owl.carousel.min.js') }}"></script>
+<script src="{{ asset('js/jquery.magnific-popup.min.js') }}"></script>
+<script src="{{ asset('js/aos.js') }}"></script>
+<script src="{{ asset('js/jquery.animateNumber.min.js') }}"></script>
+<script src="{{ asset('js/scrollax.min.js') }}"></script>
+<script src="{{ asset('js/main.js') }}"></script>
+{% block javascripts %}{% endblock %}
+</body>
+
+</html>

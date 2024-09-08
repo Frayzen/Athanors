@@ -1,0 +1,229 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
+{% endblock %}
+
+
+{% block top %}
+    <section class="hero-wrap js-fullheight" style="background-image: url({{ asset('images/bg_3.jpg') }});">
+        <div class="overlay"></div>
+        <div class="container-fluid px-0">
+            <div class="row no-gutters text align-items-end js-fullheight justify-content-center"
+                 data-scrollax-parent="true">
+                <div class="col-md-12 ftco-animate text-center">
+                    <p class="breadcrumbs"><span class="mr-2"><a
+                                    href="{{ path('user_rdvs') }}">Mes rendez-vous</a></span></p>
+                    <h1 class="bread">Mes Rdvs</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block body %}
+    {% if ((cancelleds | length) + (rdvs | length)) == 0 %}
+        <div class="w-100 text-center py-5">
+            <h1 class="text-danger">Aucun rendez-vous pour l'instant...</h1>
+        </div>
+    {% else %}
+        <div class="accordion my-4 poppins" id="accordion">
+            <div class="flex-row ml-3">
+                <h1 class="d-inline-block">
+                    Vos rendez-vous
+                    {% if app.user.regular %}
+                        <span style="font-size: 15px;" class="d-inline-block text-dark h-25"> compte authentifié <i
+                                    class="fas fa-user-check"></i></span>
+                    {% endif %}
+                </h1>
+            </div>
+
+            {% if cancelleds|length > 0 %}
+                <hr>
+
+                <div class="alert alert-danger" role="alert">
+                    <h2 class="m-0 p-0">Nouvel annulation de rendez vous</h2>
+                </div>
+            {% endif %}
+            {% for cancelled in cancelleds %}
+                <div class="card text-danger">
+                    <div class="card-header row" id="{{ cancelled.id }}">
+                    <span class="mb-0 col-12 col-md-9 mr-auto ml-3 p-0">
+                        <button class="m-0 pl-0 btn btn-link btn-block text-left" type="button" data-toggle="collapse"
+                                data-target="#id{{ cancelled.id }}" aria-expanded="true"
+                                aria-controls="{{ cancelled.id }}">
+                            Rendez vous du {{ cancelled.start | date("d-m-Y à H:i") }}
+                        </button>
+                    </span>
+                        <div class="col-12 col-md-3 w-auto text-danger mr-auto ml-3 p-0">
+                            <small class="">Rendez vous annulé par le professionel</small>
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-calendar2-x" fill="red"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                      d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM2 2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H2z"/>
+                                <path d="M2.5 4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5V4z"/>
+                                <path fill-rule="evenodd"
+                                      d="M6.146 8.146a.5.5 0 0 1 .708 0L8 9.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 10l1.147 1.146a.5.5 0 0 1-.708.708L8 10.707l-1.146 1.147a.5.5 0 0 1-.708-.708L7.293 10 6.146 8.854a.5.5 0 0 1 0-.708z"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div id="id{{ cancelled.id }}" class="collapse" aria-labelledby="{{ cancelled.id }}"
+                         data-parent="#accordion">
+                        <div class="card-body">
+                            <div class="alert alert-danger" role="alert">
+                                <p class="m-0 p-0">Ce rendez vous à été annulé par le professionel en charge. Pardonnez
+                                    nous pour le dérangement</p>
+                            </div>
+                            <fieldset disabled>
+                                <ul class="list-group">
+                                    {{ cancelled.reason|listGroup("Raison d'annulation") }}
+                                    {{ cancelled.pro.user.fullName|listGroup('Nom du ou de la professionel.e') }}
+                                    {{ cancelled.start|date("d / m / Y")|listGroup('Date de prise de rendez-vous') }}
+                                    {{ cancelled.start | date('H:i')|listGroup('Heure de prise de rendez-vous') }}
+                                    {% set difference = date(cancelled.start).diff(date(cancelled.end)) %}
+                                    {{ "#{difference.h} heure(s) et #{difference.m} minute(s)" | listGroup('Durée du rendez-vous') }}
+                                    {{ app.user.fullName | listGroup('Rendez vous au nom de') }}
+                                </ul>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+
+            {% endfor %}
+
+            {% if rdvs|length > 0 %}
+                <hr>
+                <div class="alert alert-success" role="alert">
+                    <h4 class="m-0 p-0">Les rendez-vous à venir</h4>
+                </div>
+            {% endif %}
+            {% for rdv in rdvs %}
+                <div class="card">
+                    <div class="card-header row" id="{{ rdv.id }}">
+                    <span class="mb-0 col-12 col-md-9 mr-auto ml-3 p-0">
+                        <button class="m-0 pl-0 btn btn-link btn-block text-left" type="button" data-toggle="collapse"
+                                data-target="#id{{ rdv.id }}" aria-expanded="true" aria-controls="{{ rdv.id }}">
+                            Rendez vous du {{ rdv.start | date("d-m-Y à H:i") }}
+                        </button>
+                    </span>
+                        <div class="col-12 col-md-3 w-auto mr-auto ml-3 p-0">
+                            {% if rdv.askCancel is not null %}
+                                <small class="text-danger">Une demande d'annulation a été envoyé</small>
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-folder-symlink-fill"
+                                     fill="red" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                          d="M13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2l.04.87a1.99 1.99 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14h10.348a2 2 0 0 0 1.991-1.819l.637-7A2 2 0 0 0 13.81 3zM2.19 3c-.24 0-.47.042-.684.12L1.5 2.98a1 1 0 0 1 1-.98h3.672a1 1 0 0 1 .707.293L7.586 3H2.19zm9.608 5.271l-3.182 1.97c-.27.166-.616-.036-.616-.372V9.1s-2.571-.3-4 2.4c.571-4.8 3.143-4.8 4-4.8v-.769c0-.336.346-.538.616-.371l3.182 1.969c.27.166.27.576 0 .742z"/>
+                                </svg>
+                            {% elseif rdv.validate %}
+                                <small class="text-success">Rendez vous validé par le professionel</small>
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-calendar-check"
+                                     fill="green" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                          d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                                    <path fill-rule="evenodd"
+                                          d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                                </svg>
+                            {% else %}
+                                <small class="text-info">En attente de validation par le professionel</small>
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-bell-fill" fill="blue"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/>
+                                </svg>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div id="id{{ rdv.id }}" class="collapse" aria-labelledby="{{ rdv.id }}"
+                         data-parent="#accordion">
+                        <div class="card-body">
+                            {% if rdv.askCancel is not null %}
+                                <span class="badge badge-danger">Demande d'annulation envoyée, en attente de la réponse du professionel...</span>
+                            {% elseif rdv.validate %}
+                                <a href="{{ path('user_cancel_rdv', {'id':rdv.id}) }}"
+                                   class="btn btn-outline-danger mb-4">Annuler le rendez vous</a>
+                            {% else %}
+                                <span class="badge badge-info">En cours de validation...</span>
+                            {% endif %}
+                            <div class="alert alert-dark" role="alert">
+                                <p class="m-0 p-0">Voici le récapitulatif de votre rendez vous.
+                                    <br>Si une information vous semble incorrect, veuillez prendre contact avec le
+                                    professionel dans les plus brefs délais</p>
+                            </div>
+                            <fieldset disabled>
+                                <ul class="list-group">
+                                    {{ rdv.pro.user.fullName|listGroup('Nom du ou de la professionel.e') }}
+                                    {{ rdv.start | date("d / m / Y")|listGroup('Date de prise de rendez-vous') }}
+                                    {{ rdv.start | date('H:i')|listGroup('Heure de prise de rendez-vous') }}
+                                    {% set difference = date(rdv.start).diff(date(rdv.end)) %}
+                                    {{ "#{difference.h} heure(s) et #{difference.m} minute(s)" | listGroup('Durée du rendez-vous') }}
+                                    {{ app.user.fullName | listGroup('Rendez vous au nom de') }}
+                                    {{ app.user.tel | listGroup('Votre numéro de téléphone', 'Ce numéro doit être exacte sans quoi le rendez vous sera annulé') }}
+                                </ul>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            {% if cancelledsViewed|length > 0 %}
+                <hr>
+                <div class="alert alert-warning" role="alert">
+                    <h4 class="m-0 p-0">Rendez vous annulés dernièrement</h4>
+                </div>
+            {% endif %}
+            {% for cancelled in cancelledsViewed %}
+                <div class="card">
+                    <div class="card-header row" id="{{ cancelled.id }}">
+                    <span class="mb-0 col-12 col-md-9 mr-auto ml-3 p-0">
+                        <button class="m-0 pl-0 btn btn-link btn-block text-left" type="button" data-toggle="collapse"
+                                data-target="#id{{ cancelled.id }}" aria-expanded="true"
+                                aria-controls="{{ cancelled.id }}">
+                            Rendez vous du {{ cancelled.start | date("d-m-Y à H:i") }}
+                        </button>
+                    </span>
+                        <div class="col-12 col-md-3 w-auto text-danger mr-auto ml-3 p-0">
+                            <small class="">Rendez vous annulé par le professionel</small>
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-calendar2-x" fill="red"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                      d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM2 2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H2z"/>
+                                <path d="M2.5 4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5V4z"/>
+                                <path fill-rule="evenodd"
+                                      d="M6.146 8.146a.5.5 0 0 1 .708 0L8 9.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 10l1.147 1.146a.5.5 0 0 1-.708.708L8 10.707l-1.146 1.147a.5.5 0 0 1-.708-.708L7.293 10 6.146 8.854a.5.5 0 0 1 0-.708z"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div id="id{{ cancelled.id }}" class="collapse" aria-labelledby="{{ cancelled.id }}"
+                         data-parent="#accordion">
+                        <div class="card-body">
+                            <div class="alert alert-danger" role="alert">
+                                <p class="m-0 p-0">Ce rendez vous à été annulé par le professionel en charge. Pardonnez
+                                    nous pour le dérangement</p>
+                            </div>
+                            <fieldset disabled>
+                                {% set difference = date(cancelled.start).diff(date(cancelled.end)) %}
+                                <ul class="list-group">
+                                    {{ cancelled.reason|listGroup("Raison d'annulation") }}
+                                    {{ cancelled.pro.user.fullName|listGroup('Nom du ou de la professionel.e') }}
+                                    {{ cancelled.start|date("d / m / Y")|listGroup('Date de prise de rendez-vous') }}
+                                    {{ cancelled.start | date('H:i')|listGroup('Heure de prise de rendez-vous') }}
+                                    {% set text = difference.h ~ 'heure(s) et ' ~ difference.m ~ 'minute(s)' %}
+                                    {{ text | listGroup('Durée du rendez vous') }}
+                                    {{ app.user.fullName | listGroup('Rendez vous au nom de') }}
+                                </ul>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    {% endif %}
+{% endblock %}
+
+{% block title %}
+    Mes rendez-vous
+{% endblock %}
+
