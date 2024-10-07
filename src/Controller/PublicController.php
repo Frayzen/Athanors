@@ -203,6 +203,15 @@ class PublicController extends AbstractController
     }
 
     /**
+     * @Route("/approche/jungienne", name="approche_jungienne")
+     * @return Response
+     */
+    public function approcheJungienne(): Response
+    {
+        return $this->render('public/approche_jungienne.html.twig');
+    }
+
+    /**
      * @Route("/page/{id}", name="extra_page")
      * @param ExtraPage $page
      * @return Response
